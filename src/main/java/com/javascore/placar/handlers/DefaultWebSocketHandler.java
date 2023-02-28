@@ -20,9 +20,11 @@ public class DefaultWebSocketHandler implements WebSocketHandler {
     @Override
     public Mono<Void> handle(WebSocketSession webSocketSession) {
 
+        Mono<Void> welcome = webSocketSession.send(Mono.just(webSocketSession.textMessage("Seja bem vindo ao Java Score!! jogos disponiveis: 0 :D")));
+
         Flux<WebSocketMessage> output = atualizacoes.getAtualizacaoFlux().map(value -> webSocketSession.textMessage(value));    
 
-        return webSocketSession.send(output);    
+        return welcome.then(webSocketSession.send(output));    
     }
 
 }
