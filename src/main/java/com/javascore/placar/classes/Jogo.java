@@ -25,4 +25,16 @@ public class Jogo {
         this.id = null;
         return this;
     }
+
+    @Override
+    public String toString() {
+        return "{"
+            + "\"id\":\"" + id + "\","
+            + "\"timeCasa\":\"" + timeCasa + "\","
+            + "\"timeVisitante\":\"" + timeVisitante + "\","
+            + "\"golsTimeCasa\":\"" + golsTimeCasa + "\","
+            + "\"golsTimeVisitante\":\"" + golsTimeVisitante + "\","
+            + "\"eventos\":" + eventos.toString()
+            + "}";
+    }
 }

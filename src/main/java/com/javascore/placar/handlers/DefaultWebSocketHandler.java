@@ -6,7 +6,7 @@ import org.springframework.web.reactive.socket.WebSocketHandler;
 import org.springframework.web.reactive.socket.WebSocketMessage;
 import org.springframework.web.reactive.socket.WebSocketSession;
 
-import com.javascore.placar.services.AtualizacaoService;
+import com.javascore.placar.services.JogoService;
 
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Flux;
@@ -14,17 +14,29 @@ import reactor.core.publisher.Flux;
 @Service
 public class DefaultWebSocketHandler implements WebSocketHandler {
 
+
     @Autowired
-    private AtualizacaoService atualizacoes;
+    private JogoService jogos;
 
     @Override
     public Mono<Void> handle(WebSocketSession webSocketSession) {
 
-        Mono<Void> welcome = webSocketSession.send(Mono.just(webSocketSession.textMessage("Seja bem vindo ao Java Score!! jogos disponiveis: 0 :D")));
+        Mono<Long> jogosDisponiveis = jogos.getJogos().count().map(count -> {
+            if (count != null) {
+                return count;
+            } else {
+                throw new RuntimeException("Erro ao obter a quantidade de jogos disponíveis");
+            }
+        });
+    
+        Mono<Void> welcome = webSocketSession.send(Mono.just(webSocketSession.textMessage(
+            "Seja bem vindo ao Java Score!!")));
 
-        Flux<WebSocketMessage> output = atualizacoes.getAtualizacaoFlux().map(value -> webSocketSession.textMessage(value));    
+        Flux<WebSocketMessage> jogosOutput = jogos.getJogosFlux().map(jogo -> webSocketSession.textMessage(jogo.toString()));
 
-        return welcome.then(webSocketSession.send(output));    
+        return welcome.then(webSocketSession.send(jogosDisponiveis.map(count ->
+                webSocketSession.textMessage(String.format("Jogos disponíveis: %d", count))))
+            .then(webSocketSession.send(jogosOutput)));
     }
 
 }
