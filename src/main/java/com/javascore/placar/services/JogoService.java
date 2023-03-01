@@ -48,7 +48,7 @@ public class JogoService {
         });
     }
 
-    public Mono<Void> removerJogo(UUID id) {
+    public Mono<Boolean> removerJogo(UUID id) {
         return Mono.fromCallable(() -> {
             Jogo jogoExistente = jogosMap.get(id);
             if (jogoExistente == null) {
@@ -56,9 +56,7 @@ public class JogoService {
             }
             jogosMap.remove(id);
             jogosSink.tryEmitNext(jogoExistente.removerIdentificador());
-            return null;
+            return true;
         });
     }
-    
-
 }
