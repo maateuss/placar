@@ -10,6 +10,7 @@ import com.javascore.placar.services.JogoService;
 
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Flux;
+import reactor.core.scheduler.*;
 
 @Service
 public class DefaultWebSocketHandler implements WebSocketHandler {
@@ -36,7 +37,7 @@ public class DefaultWebSocketHandler implements WebSocketHandler {
 
         return welcome.then(webSocketSession.send(jogosDisponiveis.map(count ->
                 webSocketSession.textMessage(String.format("Jogos disponíveis: %d", count))))
-            .then(webSocketSession.send(jogosOutput)));
+            .then(webSocketSession.send(jogosOutput))).subscribeOn(Schedulers.parallel());
     }
 
 }
